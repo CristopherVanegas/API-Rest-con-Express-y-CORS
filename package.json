@@ -1,0 +1,31 @@
+{
+  "name": "clase-5---api-rest-con-express-y-cors",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:1": "node --watch app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristopherVanegas/API-Rest-con-Express-y-CORS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CristopherVanegas/API-Rest-con-Express-y-CORS/issues"
+  },
+  "homepage": "https://github.com/CristopherVanegas/API-Rest-con-Express-y-CORS#readme",
+  "dependencies": {
+    "express": "5.2.1"
+  },
+  "devDependencies": {
+    "standard": "^17.1.2"
+  },
+  "eslintConfig": {
+    "extends": "standard"
+  }
+}

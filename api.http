@@ -1,0 +1,21 @@
+### Recuperar todas las peliculas
+GET http://localhost:1234/movies
+
+### Recuperar una pelicula por su ID
+GET http://localhost:1234/movies/1
+
+### Recuperar todas las películas por genero
+GET http://localhost:1234/movies?genre=Terror
+
+### Crear una película
+POST http://localhost:1234/movies
+Content-Type: application/json
+
+{
+    "title": "The Matrix Reloaded",
+    "year": 2003,
+    "director": "Lana Wachowski",
+    "duration": 138,
+    "poster": "https://www.walmart.com/ip/THE-MATRIX-RELOADED-11x17-Framed-Movie-Poster/493899262",
+    "genre": "Action"
+}
