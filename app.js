@@ -1,6 +1,8 @@
 const express = require('express')
 const movies = require('./movies.json')
 const crypto = require('node:crypto')
+const { validateMovie } = require('./schemas/movieSchema')
+// const { movieSchema } = require('./schemas/movieSchema')
 const app = express()
 
 app.use(express.json())
@@ -28,27 +30,17 @@ app.get('/movies/:id', (req, res) => {
 })
 
 app.post('/movies', (req, res) => {
-  const {
-    title,
-    genre,
-    year,
-    director,
-    duration,
-    rate,
-    poster
-  } = req.body
+  const result = validateMovie(req.body)
 
-  //   Esto no sería REST porque estamos guardando el estado
-  //   de la app en memoria
+  if (result.error) {
+    // 422 error de entidad
+    return res.status(400).json({ error: result.error.message })
+  }
+
+  // como utilizamos zod, validamos y ya no guardamos en memoria, ahora si seguimos los principios REST
   const newMovie = {
     id: crypto.randomUUID(),
-    title,
-    genre,
-    year,
-    director,
-    duration,
-    rate: rate ?? 0,
-    poster
+    ...result.data // solo si hemos hecho bien la validación.
   }
 
   movies.push(newMovie)
