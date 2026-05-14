@@ -1,4 +1,5 @@
 const express = require('express')
+const pc = require('picocolors')
 const movies = require('./movies.json')
 const crypto = require('node:crypto')
 const { validateMovie, validatePartialMovie } = require('./schemas/movieSchema')
@@ -12,14 +13,17 @@ app.disable('x-powered-by')
 const ACCEPTED_ORIGINS = [
   'http://localhost:8080',
   'http://localhost:8081',
-  'https://cristophercodes.netlify.app'
+  'https://cristophercodes.netlify.app',
+  '*'
 ]
 
 // Todos los recursos que sean MOVIES se identifican con /movies
 app.get('/movies', (req, res) => {
   const origin = req.header('origin')
-  if (ACCEPTED_ORIGINS.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:8080')
+
+  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin)
+    console.log(pc.yellow('requested get movies, origin:'), pc.cyan(origin))
   }
 
   // res.header('Access-Control-Allow-Origin', '*') - esto no se hace - vulnerabilidad
@@ -36,6 +40,13 @@ app.get('/movies', (req, res) => {
 
 // segmento dinamico por id || path-tp-regexp
 app.get('/movies/:id', (req, res) => {
+  const origin = req.header('origin')
+
+  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin)
+    console.log(pc.yellow('requested get movies, origin:'), pc.cyan(origin))
+  }
+
   const { id } = req.params
   const movie = movies.find(movie => movie.id === id)
 
@@ -85,6 +96,37 @@ app.patch('/movies/:id', (req, res) => {
   movies[movieIndex] = updateMovie
 
   return res.json(updateMovie)
+})
+
+app.delete('/movies/:id', (req, res) => {
+  const origin = req.header('origin')
+
+  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin)
+    console.log(pc.yellow('requested get movies, origin:'), pc.cyan(origin))
+  }
+
+  const { id } = req.params
+  const movieIndex = movies.findIndex(movie => movie.id === id)
+
+  if (movieIndex === -1) {
+    return res.status(404).json({ message: 'Movie not found' })
+  }
+
+  movies.splice(movieIndex, 1)
+
+  return res.json({ messsage: 'movie deleted' })
+})
+
+app.options('/movies/:id', (req, res) => {
+  const origin = req.header('origin')
+  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE')
+    // console.log(pc.yellow('requested get movies by id, origin:'), pc.cyan(origin))
+  }
+
+  res.send(200)
 })
 
 app.use((req, res) => {
