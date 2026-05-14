@@ -34,7 +34,7 @@ app.post('/movies', (req, res) => {
 
   if (result.error) {
     // 422 error de entidad
-    return res.status(400).json({ error: result.error.message })
+    return res.status(400).json({ error: JSON.parse(result.error.message) })
   }
 
   // como utilizamos zod, validamos y ya no guardamos en memoria, ahora si seguimos los principios REST

@@ -5,14 +5,14 @@ GET http://localhost:1234/movies
 GET http://localhost:1234/movies/1
 
 ### Recuperar todas las películas por genero
-GET http://localhost:1234/movies?genre=Terror
+GET http://localhost:1234/movies?genre=Action
 
 ### Crear una película
 POST http://localhost:1234/movies
 Content-Type: application/json
 
 {
-    "title": "The Matrix Reloaded",
+    # "title": "The Matrix Reloaded",
     "year": 2003,
     "director": "Lana Wachowski",
     "duration": 138,
