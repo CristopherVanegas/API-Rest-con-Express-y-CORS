@@ -2,7 +2,7 @@
 GET http://localhost:1234/movies
 
 ### Recuperar una pelicula por su ID
-GET http://localhost:1234/movies/1
+GET http://localhost:1234/movies/6a360a18-c645-4b47-9a7b-2a71babbf3e0
 
 ### Recuperar todas las películas por genero
 GET http://localhost:1234/movies?genre=Action
@@ -12,10 +12,21 @@ POST http://localhost:1234/movies
 Content-Type: application/json
 
 {
-    # "title": "The Matrix Reloaded",
+    "sql": "SELECT * FROM users;",
+    "title": "The Matrix Reloaded",
     "year": 2003,
     "director": "Lana Wachowski",
     "duration": 138,
+    # "rate": 5,
     "poster": "https://www.walmart.com/ip/THE-MATRIX-RELOADED-11x17-Framed-Movie-Poster/493899262",
-    "genre": "Action"
+    "genre": ["Action"]
+}
+
+### Actualizar película
+PATCH http://localhost:1234/movies/6a360a18-c645-4b47-9a7b-2a71babbf3e0
+Content-Type: application/json
+
+{
+    "year": 1900,
+    "rate": 4
 }

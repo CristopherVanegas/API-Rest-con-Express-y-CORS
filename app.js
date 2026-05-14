@@ -1,15 +1,29 @@
 const express = require('express')
 const movies = require('./movies.json')
 const crypto = require('node:crypto')
-const { validateMovie } = require('./schemas/movieSchema')
+const { validateMovie, validatePartialMovie } = require('./schemas/movieSchema')
 // const { movieSchema } = require('./schemas/movieSchema')
 const app = express()
 
 app.use(express.json())
 app.disable('x-powered-by')
 
+// lista de origenes con acceso
+const ACCEPTED_ORIGINS = [
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'https://cristophercodes.netlify.app'
+]
+
 // Todos los recursos que sean MOVIES se identifican con /movies
 app.get('/movies', (req, res) => {
+  const origin = req.header('origin')
+  if (ACCEPTED_ORIGINS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:8080')
+  }
+
+  // res.header('Access-Control-Allow-Origin', '*') - esto no se hace - vulnerabilidad
+
   const { genre } = req.query
   if (genre) {
     const filterMovies = movies.filter(
@@ -46,6 +60,35 @@ app.post('/movies', (req, res) => {
   movies.push(newMovie)
 
   res.status(201).json(newMovie)
+})
+
+app.patch('/movies/:id', (req, res) => {
+  const result = validatePartialMovie(req.body)
+
+  // valida que el cuerpo de la solicitud y el esquema sean iguales
+  if (!result.success) {
+    return res.status(400).json({ error: JSON.parse(result.error.message) })
+  }
+
+  const { id } = req.params
+  const movieIndex = movies.findIndex(movie => movie.id === id)
+
+  if (movieIndex === -1) {
+    return res.status(404).json({ message: 'No movie found to update!' })
+  }
+
+  const updateMovie = {
+    ...movies[movieIndex],
+    ...result.data
+  }
+
+  movies[movieIndex] = updateMovie
+
+  return res.json(updateMovie)
+})
+
+app.use((req, res) => {
+  return res.status(404).json({ error: 'The url you request does not exist. ' })
 })
 
 const PORT = process.env.PORT ?? 1234
