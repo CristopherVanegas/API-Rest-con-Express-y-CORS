@@ -1,37 +1,44 @@
 const express = require('express')
-const pc = require('picocolors')
+const cors = require('cors')
 const movies = require('./movies.json')
 const crypto = require('node:crypto')
-const { validateMovie, validatePartialMovie } = require('./schemas/movieSchema')
-// const { movieSchema } = require('./schemas/movieSchema')
+const {
+  validateMovie,
+  validatePartialMovie
+} = require('./schemas/movieSchema')
 const app = express()
 
 app.use(express.json())
-app.disable('x-powered-by')
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const ACCEPTED_ORIGINS = [
+        'http://localhost:8080', // lista de origenes con acceso
+        'http://localhost:8081',
+        'https://cristophercodes.netlify.app',
+        '*'
+      ]
 
-// lista de origenes con acceso
-const ACCEPTED_ORIGINS = [
-  'http://localhost:8080',
-  'http://localhost:8081',
-  'https://cristophercodes.netlify.app',
-  '*'
-]
+      if (ACCEPTED_ORIGINS.includes(origin)) {
+        return callback(null, true)
+      }
+
+      if (!origin) {
+        return callback(null, true)
+      }
+
+      return callback(new Error('Not allowed by CORS ;)'))
+    }
+  })
+) // res.header('Access-Control-Allow-Origin', '*') - esto no se hace - vulnerabilidad
+app.disable('x-powered-by')
 
 // Todos los recursos que sean MOVIES se identifican con /movies
 app.get('/movies', (req, res) => {
-  const origin = req.header('origin')
-
-  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin)
-    console.log(pc.yellow('requested get movies, origin:'), pc.cyan(origin))
-  }
-
-  // res.header('Access-Control-Allow-Origin', '*') - esto no se hace - vulnerabilidad
-
   const { genre } = req.query
   if (genre) {
-    const filterMovies = movies.filter(
-      movie => movie.genre.some(g => g.toLowerCase() === genre.toLowerCase())
+    const filterMovies = movies.filter((movie) =>
+      movie.genre.some((g) => g.toLowerCase() === genre.toLowerCase())
     )
     return res.json(filterMovies)
   }
@@ -40,15 +47,8 @@ app.get('/movies', (req, res) => {
 
 // segmento dinamico por id || path-tp-regexp
 app.get('/movies/:id', (req, res) => {
-  const origin = req.header('origin')
-
-  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin)
-    console.log(pc.yellow('requested get movies, origin:'), pc.cyan(origin))
-  }
-
   const { id } = req.params
-  const movie = movies.find(movie => movie.id === id)
+  const movie = movies.find((movie) => movie.id === id)
 
   if (movie) return res.json(movie)
   res.status(404).json({ message: 'Movie not found' })
@@ -82,7 +82,7 @@ app.patch('/movies/:id', (req, res) => {
   }
 
   const { id } = req.params
-  const movieIndex = movies.findIndex(movie => movie.id === id)
+  const movieIndex = movies.findIndex((movie) => movie.id === id)
 
   if (movieIndex === -1) {
     return res.status(404).json({ message: 'No movie found to update!' })
@@ -99,15 +99,8 @@ app.patch('/movies/:id', (req, res) => {
 })
 
 app.delete('/movies/:id', (req, res) => {
-  const origin = req.header('origin')
-
-  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin)
-    console.log(pc.yellow('requested get movies, origin:'), pc.cyan(origin))
-  }
-
   const { id } = req.params
-  const movieIndex = movies.findIndex(movie => movie.id === id)
+  const movieIndex = movies.findIndex((movie) => movie.id === id)
 
   if (movieIndex === -1) {
     return res.status(404).json({ message: 'Movie not found' })
@@ -118,19 +111,10 @@ app.delete('/movies/:id', (req, res) => {
   return res.json({ messsage: 'movie deleted' })
 })
 
-app.options('/movies/:id', (req, res) => {
-  const origin = req.header('origin')
-  if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
-    res.header('Access-Control-Allow-Origin', origin)
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE')
-    // console.log(pc.yellow('requested get movies by id, origin:'), pc.cyan(origin))
-  }
-
-  res.send(200)
-})
-
 app.use((req, res) => {
-  return res.status(404).json({ error: 'The url you request does not exist. ' })
+  return res
+    .status(404)
+    .json({ error: 'The url you request does not exist. ' })
 })
 
 const PORT = process.env.PORT ?? 1234
